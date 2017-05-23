@@ -1,0 +1,28 @@
+# -*- mode: conf -*-
+
+[Unit]
+Description=The Prometheus monitoring system and time series database.
+Documentation=https://prometheus.io
+After=network.target
+
+[Service]
+User=prometheus
+Group=prometheus
+# These constants appear in /usr/lib/systemd/system/prometheus.service.d/environment.conf
+ExecStart=/usr/bin/prometheus \
+          -config.file=${CONF_FILE} \
+          -storage.local.path=${STORAGE_PATH} \
+          -storage.local.retention=${RETENTION_DURATION} \
+          -web.console.libraries=${CONSOLE_LIBRARIES} \
+          -web.console.templates=${CONSOLE_TEMPLATES} \
+          -web.listen-address=${WEB_UI_ADDR} \
+          -log.format=${SYSLOG_CONF} \
+          -log.level=${LOG_LEVEL}
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=prometheus
+
+[Install]
+WantedBy=multi-user.target
